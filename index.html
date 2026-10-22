@@ -8,7 +8,7 @@
 <title>تدقيق عيادات وايت جلو</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* Layout: one RTL reading column (~760px) like a clinical case file; full-bleed tinted bands only for the numbers and the demo. */
 :root{
@@ -30,8 +30,8 @@
   --bubble-in:#FFFFFF;
   --bubble-out:#E6F3EA;
   --chat-bg:#E9E4DC;
-  --display:'El Messiri','IBM Plex Sans Arabic',Tahoma,sans-serif;
-  --body:'IBM Plex Sans Arabic','Segoe UI',Tahoma,sans-serif;
+  --display:'Noto Sans Arabic',Tahoma,Arial,sans-serif;
+  --body:'Noto Sans Arabic',Tahoma,Arial,sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#11151B;--surface:#19202A;--ink:#E7EBF0;--muted:#9AA5B2;--line:#2B3440;
@@ -68,7 +68,7 @@ a:focus-visible,input:focus-visible,button:focus-visible{outline:2px solid var(-
 
 /* Header */
 .top{padding-block:28px 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;font-size:.85rem;color:var(--muted)}
-.brand{font-weight:700;color:var(--ink);letter-spacing:.06em;font-family:'IBM Plex Sans Arabic',sans-serif;direction:ltr}
+.brand{font-weight:700;color:var(--ink);letter-spacing:.06em;font-family:var(--body);direction:ltr}
 .hero{padding-block:44px 56px}
 .hero h1{font-size:clamp(2rem,6vw,3.1rem);font-weight:700;line-height:1.25}
 .hero h1 em{font-style:normal;color:var(--accent)}
@@ -314,7 +314,7 @@ details .tbl{border:none;margin:0 0 14px}
     <h2>كل السكك بتوصل لنفس الرقم</h2>
     <p>إعلانات كتير، تلات قنوات، تلات فروع، وفريق دكاترة بيكبر. وفي النص رقم واحد معتمد على ذاكرة اللي بيرد: أنهي دكتورة في أنهي فرع النهارده، وأنهي عرض لسه شغال، وإيه أقرب فرع لواحدة ساكنة في أكتوبر أو مدينة نصر.</p>
     <div class="fig" role="img" aria-label="رسم: الإعلانات والقنوات كلها بتصب في رقم واتساب واحد بيخدم تلات فروع">
-      <svg viewBox="0 0 720 330" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Sans Arabic, Tahoma, sans-serif">
+      <svg viewBox="0 0 720 330" xmlns="http://www.w3.org/2000/svg" font-family="Noto Sans Arabic, Tahoma, Arial, sans-serif">
         <g fill="none" stroke="var(--line)" stroke-width="2">
           <path d="M560 60 C470 60 450 165 380 165"/>
           <path d="M560 165 L380 165"/>
@@ -647,7 +647,7 @@ details .tbl{border:none;margin:0 0 14px}
   var staffed=function(h){return h>=11&&h<22};
   var box=document.getElementById('hours'), tip=document.getElementById('tip');
   var W=720,H=220,pl=34,pr=8,pt=12,pb=30,iw=W-pl-pr,ih=H-pt-pb,bw=iw/24,max=10;
-  var s='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Sans Arabic, Tahoma, sans-serif" font-size="11">';
+  var s='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" font-family="Noto Sans Arabic, Tahoma, Arial, sans-serif" font-size="11">';
   [0,5,10].forEach(function(t){var y=pt+ih-ih*t/max;s+='<line x1="'+pl+'" x2="'+(W-pr)+'" y1="'+y+'" y2="'+y+'" stroke="var(--line)" stroke-width="1"/><text x="'+(pl-6)+'" y="'+(y+4)+'" text-anchor="end" fill="var(--muted)">'+fmt.format(t)+'٪</text>'});
   w.forEach(function(v,h){
     var p=v/tot*100,bh=ih*p/max,x=pl+h*bw+1,y=pt+ih-bh;
