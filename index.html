@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="description" content="تحليل مجاني لرحلة الحجز في عيادات وايت جلو، من Automera">
+<meta name="robots" content="noindex, nofollow">
+<title>تدقيق عيادات وايت جلو</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: one RTL reading column (~760px) like a clinical case file; full-bleed tinted bands only for the numbers and the demo. */
+:root{
+  --bg:#F5F6F8;
+  --surface:#FFFFFF;
+  --ink:#17202A;
+  --muted:#5A6571;
+  --line:#DCE1E7;
+  --accent:#7B3D6C;
+  --accent-soft:#F4E9F1;
+  --pearl:#8E6F3A;
+  --pearl-soft:#F6EFE2;
+  --bad:#B04444;
+  --bad-soft:#F8E6E6;
+  --good:#2F7550;
+  --good-soft:#E3F1E8;
+  --bar:#9AA6B3;
+  --band:#ECEFF3;
+  --bubble-in:#FFFFFF;
+  --bubble-out:#E6F3EA;
+  --chat-bg:#E9E4DC;
+  --display:'El Messiri','IBM Plex Sans Arabic',Tahoma,sans-serif;
+  --body:'IBM Plex Sans Arabic','Segoe UI',Tahoma,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11151B;--surface:#19202A;--ink:#E7EBF0;--muted:#9AA5B2;--line:#2B3440;
+  --accent:#DA9CC9;--accent-soft:#2E2230;--pearl:#D6B67F;--pearl-soft:#2A2419;
+  --bad:#EA8D8D;--bad-soft:#3A2224;--good:#80C79F;--good-soft:#1C3026;
+  --bar:#5E6B7A;--band:#161C24;--bubble-in:#222B36;--bubble-out:#1F3A2B;--chat-bg:#0F1419;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11151B;--surface:#19202A;--ink:#E7EBF0;--muted:#9AA5B2;--line:#2B3440;
+  --accent:#DA9CC9;--accent-soft:#2E2230;--pearl:#D6B67F;--pearl-soft:#2A2419;
+  --bad:#EA8D8D;--bad-soft:#3A2224;--good:#80C79F;--good-soft:#1C3026;
+  --bar:#5E6B7A;--band:#161C24;--bubble-in:#222B36;--bubble-out:#1F3A2B;--chat-bg:#0F1419;
+  color-scheme:dark}
+
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.8;-webkit-font-smoothing:antialiased}
+.page{direction:rtl;text-align:right}
+.wrap{max-width:780px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.band{background:var(--band);border-block:1px solid var(--line)}
+section{padding-block:64px}
+.page>section+section,.page>.wrap>section+section{border-top:1px solid var(--line)}
+h1,h2,h3{font-family:var(--display);font-weight:600;text-wrap:balance;margin:0;line-height:1.35}
+h2{font-size:1.75rem;margin-bottom:16px}
+h3{font-size:1.15rem;margin-bottom:8px}
+p{margin:0 0 14px;color:var(--muted);max-width:64ch}
+p strong,li strong{color:var(--ink);font-weight:600}
+.eyebrow{font-size:.8rem;font-weight:600;color:var(--accent);letter-spacing:.02em;margin-bottom:10px;display:flex;gap:10px;align-items:center}
+.eyebrow .n{font-variant-numeric:tabular-nums;border:1px solid var(--accent);border-radius:999px;padding:0 9px;font-size:.72rem;line-height:1.7}
+.est{display:inline-block;background:var(--pearl-soft);color:var(--pearl);font-size:.7rem;font-weight:600;padding:1px 8px;border-radius:4px;vertical-align:middle;margin-inline-start:6px;white-space:nowrap}
+.num{font-variant-numeric:tabular-nums}
+.ltr{direction:ltr;unicode-bidi:isolate;display:inline-block}
+a{color:var(--accent)}
+a:focus-visible,input:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+
+/* Header */
+.top{padding-block:28px 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;font-size:.85rem;color:var(--muted)}
+.brand{font-weight:700;color:var(--ink);letter-spacing:.06em;font-family:'IBM Plex Sans Arabic',sans-serif;direction:ltr}
+.hero{padding-block:44px 56px}
+.hero h1{font-size:clamp(2rem,6vw,3.1rem);font-weight:700;line-height:1.25}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.hero .lede{margin-top:18px;font-size:1.05rem}
+.for{margin-top:22px;display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-size:.8rem;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 12px;color:var(--muted)}
+.chip b{color:var(--ink);font-weight:600}
+
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:34px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px 18px}
+.tile .v{font-family:var(--display);font-size:2.6rem;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums}
+.tile .v small{font-size:1rem;font-weight:500;color:var(--muted);margin-inline-start:4px}
+.tile .l{font-size:.86rem;color:var(--muted);margin-top:6px;line-height:1.55}
+.tile .r{font-size:.75rem;color:var(--pearl);margin-top:8px}
+.tile.loss .v{color:var(--bad)}
+.tile.save .v{color:var(--good)}
+
+/* Findings */
+.findings{list-style:none;margin:24px 0 0;padding:0;display:grid;gap:0}
+.findings li{display:grid;grid-template-columns:1fr auto;gap:6px 16px;padding:16px 0;border-bottom:1px solid var(--line)}
+.findings li:first-child{border-top:1px solid var(--line)}
+.findings .what{color:var(--ink);font-weight:500;min-width:0}
+.findings .what>span{display:block;color:var(--muted);font-weight:400;font-size:.9rem;margin-top:2px}
+.findings .src{font-size:.75rem;color:var(--muted);white-space:nowrap;align-self:start;padding-top:3px}
+.unknown{margin-top:28px;background:var(--surface);border:1px dashed var(--line);border-radius:12px;padding:20px 22px}
+.unknown h3{font-size:1rem}
+.unknown ul{margin:6px 0 0;padding-inline-start:20px;color:var(--muted);font-size:.92rem}
+
+/* Diagram */
+.fig{margin:28px 0 10px;overflow-x:auto}
+.fig svg{display:block;width:100%;min-width:560px;height:auto}
+.cap{font-size:.8rem;color:var(--muted);margin-top:6px}
+
+/* Questions */
+.qs{margin:24px 0;display:grid;gap:10px}
+.q{display:grid;grid-template-columns:minmax(0,1fr) 120px 44px;align-items:center;gap:14px;font-size:.95rem}
+.q .t{color:var(--ink);min-width:0}
+.q .t i{font-style:normal;display:block;font-size:.78rem;color:var(--muted)}
+.q .bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden;direction:rtl;display:flex;justify-content:flex-start}
+.q .bar span{display:block;height:100%;background:var(--accent);border-radius:4px}
+.q.flag .bar span{background:var(--bad)}
+.q .p{font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums;text-align:left}
+.flagnote{font-size:.85rem;color:var(--bad);background:var(--bad-soft);border-radius:8px;padding:10px 14px;margin-top:6px}
+
+/* Branch matrix */
+.tbl{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.9rem;min-width:520px}
+th,td{padding:12px 14px;text-align:right;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;font-size:.8rem;color:var(--muted);background:var(--band)}
+tr:last-child td{border-bottom:none}
+td.c{text-align:center;font-variant-numeric:tabular-nums}
+
+/* Chart */
+.chart-wrap{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 16px 12px;margin:24px 0;position:relative}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:.8rem;color:var(--muted);margin-bottom:8px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+#hours{direction:ltr}
+#hours svg{display:block;width:100%;height:auto}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);font-size:.78rem;padding:6px 10px;border-radius:6px;white-space:nowrap;transform:translate(-50%,-110%);direction:rtl}
+.clock{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:20px}
+.clock div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.clock b{display:block;font-family:var(--display);font-size:1.7rem;font-variant-numeric:tabular-nums}
+.clock .bad b{color:var(--bad)}
+.clock span{font-size:.85rem;color:var(--muted)}
+
+/* Model */
+.scen{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:22px 0}
+.sc{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px}
+.sc.base{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+.sc h3{font-size:.95rem;color:var(--muted);font-family:var(--body);font-weight:600}
+.sc.base h3{color:var(--accent)}
+.sc dl{margin:10px 0 0;display:grid;gap:8px}
+.sc dt{font-size:.78rem;color:var(--muted)}
+.sc dd{margin:0;font-family:var(--display);font-size:1.45rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.2}
+.sc dd.l{color:var(--bad)}
+.sc dd.g{color:var(--good)}
+
+.calc{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;margin-top:28px}
+.calc h3{margin-bottom:4px}
+.calc .sub{font-size:.85rem;color:var(--muted);margin-bottom:18px}
+.ctrls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 24px}
+.ctrl label{display:flex;justify-content:space-between;gap:10px;font-size:.86rem;color:var(--ink)}
+.ctrl output{font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums}
+.ctrl input{width:100%;accent-color:var(--accent);margin-top:6px}
+.ctrl small{display:block;font-size:.74rem;color:var(--muted);line-height:1.5}
+.outs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px;padding-top:18px;border-top:1px solid var(--line)}
+.outs div{min-width:0}
+.outs b{display:block;font-family:var(--display);font-size:1.6rem;font-variant-numeric:tabular-nums;line-height:1.2}
+.outs span{font-size:.76rem;color:var(--muted);display:block;line-height:1.5}
+.outs .l b{color:var(--bad)}
+.outs .g b{color:var(--good)}
+.reset{margin-top:14px;font:inherit;font-size:.8rem;background:none;border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:4px 12px;cursor:pointer}
+
+/* Assumptions */
+details{margin-top:20px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px 18px}
+summary{cursor:pointer;padding:12px 0;font-weight:600;font-size:.92rem}
+details table{min-width:560px;font-size:.84rem}
+details .tbl{border:none;margin:0 0 14px}
+
+/* Flow */
+.flow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:24px 0}
+.fl{border-radius:12px;padding:20px;border:1px solid var(--line);background:var(--surface)}
+.fl.after{background:var(--good-soft);border-color:transparent}
+.fl h3{font-size:.95rem;display:flex;align-items:center;gap:8px}
+.fl h3 i{width:8px;height:8px;border-radius:50%;display:inline-block}
+.fl ol{margin:10px 0 0;padding:0;list-style:none;counter-reset:s}
+.fl li{counter-increment:s;display:grid;grid-template-columns:22px 1fr;gap:8px;padding:8px 0;border-top:1px solid var(--line);font-size:.88rem;color:var(--muted)}
+.fl.after li{border-color:rgba(47,117,80,.2)}
+.fl li::before{content:counter(s);font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}
+.fl.after li::before{color:var(--good)}
+.fl li strong{color:var(--ink)}
+.fl .tot{margin-top:10px;font-weight:600;font-size:.9rem}
+.fl.before .tot{color:var(--bad)}
+.fl.after .tot{color:var(--good)}
+
+/* Chat demo */
+.demo{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;align-items:start;margin-top:24px}
+.phone{background:var(--chat-bg);border-radius:20px;padding:14px 12px 16px;border:1px solid var(--line);max-width:380px;width:100%}
+.ph-top{display:flex;justify-content:space-between;align-items:center;font-size:.78rem;color:var(--muted);padding:0 6px 10px;border-bottom:1px solid var(--line);margin-bottom:10px}
+.ph-top b{color:var(--ink);font-size:.86rem}
+.msg{max-width:86%;padding:8px 11px 4px;border-radius:10px;font-size:.86rem;line-height:1.65;margin-bottom:7px;color:var(--ink);box-shadow:0 1px 0 rgba(0,0,0,.06)}
+.msg time{display:block;font-size:.66rem;color:var(--muted);text-align:left;font-variant-numeric:tabular-nums}
+.msg.in{background:var(--bubble-in);margin-inline-end:auto;border-start-start-radius:3px}
+.msg.out{background:var(--bubble-out);margin-inline-start:auto;border-start-end-radius:3px}
+.msg.sys{background:none;box-shadow:none;text-align:center;max-width:100%;font-size:.72rem;color:var(--muted);padding:2px}
+.notes{display:grid;gap:12px}
+.note{border-inline-start:2px solid var(--accent);padding:2px 14px}
+.note b{display:block;font-size:.9rem}
+.note span{font-size:.85rem;color:var(--muted)}
+
+/* Rubric */
+.rub{margin-top:22px}
+.rub table{min-width:600px}
+.w{font-family:var(--display);font-weight:700;font-variant-numeric:tabular-nums;font-size:1.05rem}
+.crit{display:inline-block;font-size:.68rem;font-weight:600;color:var(--bad);background:var(--bad-soft);border-radius:4px;padding:0 6px;margin-inline-start:6px;white-space:nowrap}
+.wbar{display:flex;height:12px;border-radius:6px;overflow:hidden;margin:18px 0 6px;gap:2px;direction:rtl}
+.wbar span{display:block;height:100%}
+
+/* Capabilities */
+.caps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:22px}
+.cap-i{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px}
+.cap-i h3{font-size:1rem}
+.cap-i p{font-size:.88rem;margin:0}
+
+/* Pilot */
+.steps{display:grid;gap:0;margin-top:22px;border-inline-start:2px solid var(--line);padding-inline-start:22px}
+.st{position:relative;padding-bottom:22px}
+.st::before{content:"";position:absolute;inset-inline-start:-29px;top:8px;width:12px;height:12px;border-radius:50%;background:var(--bg);border:2px solid var(--accent)}
+.st .when{font-size:.78rem;font-weight:600;color:var(--accent)}
+.st p{font-size:.9rem;margin:2px 0 0}
+
+/* CTA */
+.cta{text-align:center;padding-block:72px}
+.cta p{margin-inline:auto}
+.btn{display:inline-block;background:var(--accent);color:var(--bg);text-decoration:none;font-weight:600;padding:13px 30px;border-radius:10px;margin-top:10px}
+.btn:hover{filter:brightness(1.08)}
+.foot{padding-block:32px 48px;border-top:1px solid var(--line);font-size:.8rem;color:var(--muted);line-height:1.8}
+.foot ol{padding-inline-start:18px;margin:8px 0 0}
+.foot p{font-size:.8rem;max-width:none}
+
+@media (max-width:680px){
+  section{padding-block:48px}
+  h2{font-size:1.45rem}
+  .tiles,.scen,.flow,.caps,.demo,.clock{grid-template-columns:1fr}
+  .ctrls{grid-template-columns:1fr}
+  .outs{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .q{grid-template-columns:minmax(0,1fr) 70px 40px}
+  .findings li{grid-template-columns:1fr}
+  .findings .src{white-space:normal}
+  .phone{max-width:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<div class="page" dir="rtl" lang="ar-EG">
+
+<div class="wrap">
+  <div class="top">
+    <span class="brand">AUTOMERA</span>
+    <span>اتعمل يوم ٢٢ أكتوبر ٢٠٢٦ · تحليل مجاني</span>
+  </div>
+
+  <header class="hero">
+    <div class="eyebrow">عيادات وايت جلو · د. سحر هيكل</div>
+    <h1>تلات فروع، ورقم واتساب <em>واحد</em></h1>
+    <p class="lede">بصّينا على رحلة المريضة من أول ما تشوف الإعلان لحد ما تقعد على الكرسي، في فروع المهندسين والتجمع الخامس والشيخ زايد: الحجوزات بتضيع فين، الرد اليدوي بياخد كام ساعة من الفريق، وإيه اللي هيتغير لما يبقى عندك موظف استقبال ذكي شغال ٢٤ ساعة وأداؤه بيتقاس بمعايير جودة واضحة.</p>
+    <div class="for">
+      <span class="chip"><b>المهندسين</b> · الجيزة</span>
+      <span class="chip"><b>التجمع الخامس</b> · القاهرة الجديدة</span>
+      <span class="chip"><b>الشيخ زايد</b> · غرب القاهرة</span>
+    </div>
+
+    <div class="tiles">
+      <div class="tile loss">
+        <div class="v num">٨٢<small>حجز</small></div>
+        <div class="l">حجز تقريباً بيضيع كل شهر، عشان الرد بيوصل بعد ما المريضة تكون حجزت في حتة تانية</div>
+        <div class="r">من ٢٧ لـ ١٨٥ · تقدير</div>
+      </div>
+      <div class="tile">
+        <div class="v num">٤٤٤<small>محادثة</small></div>
+        <div class="l">محادثة في الشهر بتيجي بعد ما الاستقبال يقفل، يعني حوالي ١٥ كل ليلة</div>
+        <div class="r">من ١٨٨ لـ ٨١٠ · تقدير</div>
+      </div>
+      <div class="tile save">
+        <div class="v num">٩٤<small>ساعة</small></div>
+        <div class="l">ساعة شغل في الشهر ممكن ترجع لفريق الاستقبال، يعني حوالي ٣ ساعات كل يوم</div>
+        <div class="r">من ٣٥ لـ ٢٠٨ · تقدير</div>
+      </div>
+    </div>
+  </header>
+</div>
+
+<div class="wrap">
+  <section id="seen">
+    <div class="eyebrow"><span class="n">١</span> اللي شفناه</div>
+    <h2>العيادة بتكبر، بس الباب اللي المريضة بتدخل منه زي ما هو</h2>
+    <p>كل الملاحظات دي من مصادر عامة بس: مكتبة إعلانات ميتا وصفحة العيادة على فيسبوك، ما بين ١٦ و٢٠ أكتوبر ٢٠٢٦. ما كلمناش العيادة وما بعتناش أي رسالة.</p>
+    <ul class="findings">
+      <li><div class="what">تلات فروع بعيدة عن بعض<span>المهندسين في قلب الجيزة، والتجمع الخامس في أقصى الشرق، والشيخ زايد في الغرب. المسافة بين زايد والتجمع لوحدها أكتر من ٥٠ كيلو.</span></div><div class="src">صفحة فيسبوك · إعلانات ميتا</div></li>
+      <li><div class="what">رقم واتساب واحد وخط تليفون واحد للفروع كلها<span>واتساب <span class="ltr">01299986031</span> وتليفون <span class="ltr">01299986032</span>. أي سؤال عن أي فرع بيوصل لنفس المكان.</span></div><div class="src">إعلانات ميتا · ١٦ أكتوبر</div></li>
+      <li><div class="what">أربع إعلانات عروض فيلر وبوتوكس في أسبوع واحد<span>أيام ٦ و٨ و١٠ و١٢ أكتوبر، وكلها «لمدة يومين بس». كل عرض بيفتح موجة رسايل «تفاصيل؟» و«لسه متاح؟» لازم تترد قبل ما العرض يخلص.</span></div><div class="src">مكتبة إعلانات ميتا</div></li>
+      <li><div class="what">إعلان مطلوب دكاترة جلدية لفرعي المهندسين والشيخ زايد<span>منشور يوم ١٠ أكتوبر. دكاترة أكتر يعني جداول مواعيد أكتر، ولازم اللي بيرد على الرسايل يبقى حافظها.</span></div><div class="src">مكتبة إعلانات ميتا · ١٠ أكتوبر</div></li>
+      <li><div class="what">الإعلانات بتفتح ماسنجر، والرقم واتساب<span>زرار الإعلان بيودّي على ماسنجر، والرقم المكتوب واتساب، وفيه كمان التليفون. يعني تلات قنوات بيردّ عليها نفس الفريق.</span></div><div class="src">مكتبة إعلانات ميتا</div></li>
+      <li><div class="what">مفيش طريقة تحجز بيها غير المحادثة<span>صفحة فيسبوك جديدة (حوالي ٣٤٥ متابع)، وما لقيناش في البحث موقع ولا صفحة حجز ولا تقييمات منشورة للفروع. الإعلان هو الباب الوحيد، وكل حجز لازم يعدّي على محادثة بيرد عليها إنسان.</span></div><div class="src">بحث على الويب · ٢٢ أكتوبر</div></li>
+    </ul>
+
+    <div class="unknown">
+      <h3>حاجات ما قدرناش نتأكد منها</h3>
+      <ul>
+        <li>الرد على واتساب وماسنجر بياخد وقت قد إيه فعلاً، لأننا ما بعتناش رسايل للعيادة.</li>
+        <li>تقييمات جوجل لكل فرع، لأننا ما لقيناش صفحات عليها تقييمات.</li>
+        <li>مواعيد الاستقبال في كل فرع، وعدد المحادثات الحقيقي في اليوم.</li>
+      </ul>
+      <p style="margin:10px 0 0;font-size:.9rem">عشان كده كل الأرقام اللي تحت تقديرية، ومكتوب جنبها الافتراضات. لو حضرتك موافقة، نقدر نعمل اختبار «مريضة سرية» على التلات فروع ونحط أرقام حقيقية مكان التقديرات.</p>
+    </div>
+  </section>
+
+  <section id="map">
+    <div class="eyebrow"><span class="n">٢</span> شكل المشكلة</div>
+    <h2>كل السكك بتوصل لنفس الرقم</h2>
+    <p>إعلانات كتير، تلات قنوات، تلات فروع، وفريق دكاترة بيكبر. وفي النص رقم واحد معتمد على ذاكرة اللي بيرد: أنهي دكتورة في أنهي فرع النهارده، وأنهي عرض لسه شغال، وإيه أقرب فرع لواحدة ساكنة في أكتوبر أو مدينة نصر.</p>
+    <div class="fig" role="img" aria-label="رسم: الإعلانات والقنوات كلها بتصب في رقم واتساب واحد بيخدم تلات فروع">
+      <svg viewBox="0 0 720 330" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Sans Arabic, Tahoma, sans-serif">
+        <g fill="none" stroke="var(--line)" stroke-width="2">
+          <path d="M560 60 C470 60 450 165 380 165"/>
+          <path d="M560 165 L380 165"/>
+          <path d="M560 270 C470 270 450 165 380 165"/>
+          <path d="M260 165 C200 165 190 60 150 60"/>
+          <path d="M260 165 L150 165"/>
+          <path d="M260 165 C200 165 190 270 150 270"/>
+        </g>
+        <g font-size="13" text-anchor="middle">
+          <rect x="560" y="34" width="150" height="52" rx="10" fill="var(--surface)" stroke="var(--line)"/>
+          <text x="635" y="57" fill="var(--ink)" font-weight="600">إعلانات العروض</text>
+          <text x="635" y="75" fill="var(--muted)" font-size="11">زرار ماسنجر</text>
+          <rect x="560" y="139" width="150" height="52" rx="10" fill="var(--surface)" stroke="var(--line)"/>
+          <text x="635" y="162" fill="var(--ink)" font-weight="600">واتساب</text>
+          <text x="635" y="180" fill="var(--muted)" font-size="11">الرقم في الإعلان</text>
+          <rect x="560" y="244" width="150" height="52" rx="10" fill="var(--surface)" stroke="var(--line)"/>
+          <text x="635" y="267" fill="var(--ink)" font-weight="600">مكالمات</text>
+          <text x="635" y="285" fill="var(--muted)" font-size="11">خط واحد</text>
+
+          <rect x="262" y="120" width="116" height="90" rx="12" fill="var(--bad-soft)" stroke="var(--bad)"/>
+          <text x="320" y="152" fill="var(--bad)" font-weight="700" font-size="14">مكان واحد</text>
+          <text x="320" y="172" fill="var(--ink)" font-size="12" direction="ltr">01299986031</text>
+          <text x="320" y="192" fill="var(--muted)" font-size="11">ذاكرة موظف واحد</text>
+
+          <rect x="10" y="34" width="140" height="52" rx="10" fill="var(--surface)" stroke="var(--line)"/>
+          <text x="80" y="57" fill="var(--ink)" font-weight="600">الشيخ زايد</text>
+          <text x="80" y="75" fill="var(--muted)" font-size="11">غرب · مطلوب دكاترة</text>
+          <rect x="10" y="139" width="140" height="52" rx="10" fill="var(--surface)" stroke="var(--line)"/>
+          <text x="80" y="162" fill="var(--ink)" font-weight="600">المهندسين</text>
+          <text x="80" y="180" fill="var(--muted)" font-size="11">وسط · مطلوب دكاترة</text>
+          <rect x="10" y="244" width="140" height="52" rx="10" fill="var(--surface)" stroke="var(--line)"/>
+          <text x="80" y="267" fill="var(--ink)" font-weight="600">التجمع الخامس</text>
+          <text x="80" y="285" fill="var(--muted)" font-size="11">شرق · +٥٠ كيلو من زايد</text>
+        </g>
+      </svg>
+    </div>
+    <div class="cap">رسم توضيحي مبني على الإعلانات المنشورة. المسافات تقريبية.</div>
+
+    <h3 style="margin-top:34px">اللي بيرد لازم يعرف كل ده، في كل رسالة</h3>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>المعلومة</th><th>المهندسين</th><th>التجمع الخامس</th><th>الشيخ زايد</th><th>موجودة فين النهارده؟</th></tr></thead>
+        <tbody>
+          <tr><td>الدكتورة الموجودة النهارده</td><td class="c">؟</td><td class="c">؟</td><td class="c">؟</td><td>في دماغ الموظف أو جروب واتساب داخلي</td></tr>
+          <tr><td>أقرب ميعاد فاضي</td><td class="c">؟</td><td class="c">؟</td><td class="c">؟</td><td>مكالمة للفرع وبعدين رد على المريضة</td></tr>
+          <tr><td>العرض الشغال وآخر يوم فيه</td><td class="c" colspan="3">عرض جديد كل يومين</td><td>في الإعلان، مش قدام الموظف</td></tr>
+          <tr><td>الإجراء مناسب لحالتها؟</td><td class="c" colspan="3">محتاج دكتورة</td><td>غالباً بيتجاوب من غير معايير ثابتة</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>كل ما دكتورة جديدة تنضم، الجدول ده بيزيد صف. وكل ما عرض جديد ينزل، بتزيد فرصة إن اتنين يسألوا نفس السؤال وياخدوا إجابتين مختلفتين.</p>
+  </section>
+</div>
+
+<div class="band">
+<div class="wrap">
+  <section id="clock" style="border:none">
+    <div class="eyebrow"><span class="n">٣</span> ساعة العرض</div>
+    <h2>العرض عمره ٤٨ ساعة، والرسايل بتيجي بالليل</h2>
+    <p>اللي بتشوف إعلان فيلر غالباً بتكون بتقلّب في الموبايل بعد الساعة ١٠ بالليل. لو بعتت «العرض لسه موجود؟» الساعة ١١ بالليل والرد جالها ١١ الصبح، يبقى ربع مدة العرض راح قبل ما المحادثة تبدأ. وفي الـ ١٢ ساعة دول تكون سألت عيادتين تانيين على الأقل.</p>
+    <div class="chart-wrap">
+      <div class="legend">
+        <span><i style="background:var(--bar)"></i> مواعيد الاستقبال (افتراض: ١١ الصبح لـ ١٠ بالليل)</span>
+        <span><i style="background:var(--bad)"></i> بعد ما الاستقبال يقفل</span>
+      </div>
+      <div id="hours" aria-label="رسم بياني: توزيع تقديري للرسايل على ساعات اليوم"></div>
+      <div class="tip" id="tip" hidden></div>
+      <div class="cap">توزيع تقديري لشكل رسايل عيادات التجميل في مصر، كنسبة من رسايل اليوم. حوالي ٣٧٪ من الرسايل بتيجي برّه مواعيد الاستقبال. <span class="est">تقدير</span></div>
+    </div>
+    <div class="clock">
+      <div class="bad"><b class="num">١٢ ساعة</b><span>متوسط ما الرسالة اللي جت بالليل تستنى لحد أول رد الصبح، يعني ٢٥٪ من عمر عرض مدته يومين</span></div>
+      <div><b class="num">٧ أضعاف</b><span>فرصة إن الاستفسار يتحول لعميل لو اترد عليه في أول ساعة، مقارنة بالرد بعد ساعة أو أكتر (هارفارد بيزنس ريفيو، ٢٠١١)</span></div>
+    </div>
+  </section>
+</div>
+</div>
+
+<div class="wrap">
+  <section id="questions">
+    <div class="eyebrow"><span class="n">٤</span> نفس الأسئلة كل يوم</div>
+    <h2>نفس الأسئلة، عشرات المرات في اليوم</h2>
+    <p>عيادة معتمدة على إعلانات العروض غالباً بيجيلها نفس الأسئلة بصيغ مختلفة. دي الأسئلة اللي متوقع تتكرر أكتر حاجة عند وايت جلو، ونسبة كل واحد فيهم من المحادثات:</p>
+    <div class="qs">
+      <div class="q"><div class="t">«العرض ده لسه موجود؟ وفيه إيه بالظبط؟»<i>تفاصيل العرض ومدته</i></div><div class="bar"><span style="width:100%"></span></div><div class="p">٣٠٪</div></div>
+      <div class="q"><div class="t">«ينفع أحجز بكرة؟ فيه مواعيد إمتى؟»<i>المواعيد الفاضية</i></div><div class="bar"><span style="width:66%"></span></div><div class="p">٢٠٪</div></div>
+      <div class="q"><div class="t">«أنا ساكنة في أكتوبر، أقرب فرع ليا فين؟»<i>اختيار الفرع</i></div><div class="bar"><span style="width:66%"></span></div><div class="p">٢٠٪</div></div>
+      <div class="q"><div class="t">«دكتورة سحر بتبقى في فرع زايد إمتى؟»<i>جدول الدكاترة في الفروع</i></div><div class="bar"><span style="width:33%"></span></div><div class="p">١٠٪</div></div>
+      <div class="q"><div class="t">«الفيلر بيقعد قد إيه؟ وبيورّم؟»<i>أسئلة عامة عن الإجراء</i></div><div class="bar"><span style="width:33%"></span></div><div class="p">١٠٪</div></div>
+      <div class="q"><div class="t">«عايزة أغيّر ميعادي»<i>تغيير أو إلغاء</i></div><div class="bar"><span style="width:17%"></span></div><div class="p">٥٪</div></div>
+      <div class="q flag"><div class="t">«أنا مرضعة، ينفع أعمل بوتوكس؟»<i>موانع طبية محتاجة دكتورة</i></div><div class="bar"><span style="width:17%"></span></div><div class="p">٥٪</div></div>
+    </div>
+    <p>خمس أسئلة من السبعة دول إجابتهم ثابتة، مش محتاجين دكتورة ولا حتى إنسان. أما آخر سؤال فهو الأخطر: لو موظفة استقبال مضغوطة ردّت عليه بـ«آه عادي»، يبقى فيه خطر طبي وخطر على سمعة العيادة.</p>
+    <div class="flagnote">في الحل اللي بنقترحه، أي سؤال فيه حمل أو رضاعة أو أدوية سيولة أو حساسية أو إجراء قريب بيتحوّل فوراً لدكتورة ومعاه ملخص الحالة، والنظام عمره ما بيجاوب عليه.</div>
+    <p style="font-size:.8rem;margin-top:14px">النسب تقديرية، مبنية على نوع الإعلانات (عروض بسعر ومدة محددة) وشكل الشغل في عيادات التجميل اللي ليها كذا فرع. <span class="est">تقدير</span></p>
+  </section>
+</div>
+
+<div class="band">
+<div class="wrap">
+  <section id="numbers" style="border:none">
+    <div class="eyebrow"><span class="n">٥</span> الأرقام</div>
+    <h2>العيادة ممكن تكون بتخسر قد إيه، وقد إيه ممكن يرجع</h2>
+    <p>عملنا الحسبة على تلات سيناريوهات. السيناريو اللي في النص هو أقرب تقدير لعيادة بتلات فروع بتنزل كذا إعلان عروض كل أسبوع. كل الأرقام شهرية وللفروع التلاتة مع بعض، ومفيهاش أي فلوس.</p>
+
+    <div class="scen">
+      <div class="sc">
+        <h3>متحفظ</h3>
+        <dl>
+          <dt>حجوزات ضايعة</dt><dd class="l num">٢٧</dd>
+          <dt>حجوزات راجعة</dt><dd class="g num">١٩</dd>
+          <dt>ساعات متوفرة</dt><dd class="g num">٣٥</dd>
+        </dl>
+      </div>
+      <div class="sc base">
+        <h3>الأقرب للواقع</h3>
+        <dl>
+          <dt>حجوزات ضايعة</dt><dd class="l num">٨٢</dd>
+          <dt>حجوزات راجعة (+ زيارات أنقذتها التذكيرات)</dt><dd class="g num">٦٦ + ١٠</dd>
+          <dt>ساعات متوفرة</dt><dd class="g num">٩٤</dd>
+        </dl>
+      </div>
+      <div class="sc">
+        <h3>عالي</h3>
+        <dl>
+          <dt>حجوزات ضايعة</dt><dd class="l num">١٨٥</dd>
+          <dt>حجوزات راجعة</dt><dd class="g num">١٥٧</dd>
+          <dt>ساعات متوفرة</dt><dd class="g num">٢٠٨</dd>
+        </dl>
+      </div>
+    </div>
+    <p>في السيناريو الأقرب للواقع: <strong>حوالي ٢٧ حجز بيضيع من كل فرع في الشهر</strong>، يعني تقريباً حجز كل يوم في كل فرع. و<strong>٩٤ ساعة متوفرة</strong> دي أكتر من نص وقت موظفة استقبال فول تايم، بترجع للمريضات اللي موجودين فعلاً في العيادة.</p>
+
+    <div class="calc" id="calc">
+      <h3>جرّبي بأرقامك</h3>
+      <div class="sub">حرّكي المؤشرات على حسب اللي تعرفيه عن العيادة، والنتايج هتتغير على طول. القيم اللي ظاهرة دلوقتي هي السيناريو الأقرب للواقع.</div>
+      <div class="ctrls">
+        <div class="ctrl"><label for="c-d">محادثات جديدة في اليوم (كل الفروع والقنوات) <output id="o-d"></output></label><input type="range" id="c-d" min="10" max="120" step="5" value="40"><small>واتساب + ماسنجر + مكالمات</small></div>
+        <div class="ctrl"><label for="c-a">نسبة الرسايل اللي بتيجي بعد قفل الاستقبال <output id="o-a"></output></label><input type="range" id="c-a" min="10" max="60" step="1" value="37"><small>بتترد تاني يوم الصبح</small></div>
+        <div class="ctrl"><label for="c-s">رسايل وقت الشغل اللي ردها بيتأخر أكتر من ١٥ دقيقة <output id="o-s"></output></label><input type="range" id="c-s" min="0" max="60" step="1" value="25"><small>وقت الزحمة، والموظف بيرد على التليفون والمرضى في الاستقبال</small></div>
+        <div class="ctrl"><label for="c-g">الفرق في التحويل بين الرد السريع والمتأخر (نقطة) <output id="o-g"></output></label><input type="range" id="c-g" min="5" max="25" step="1" value="13"><small>مثلاً ٢٣٪ للرد السريع قصاد ١٠٪ للمتأخر</small></div>
+        <div class="ctrl"><label for="c-m">دقايق شغل لكل محادثة <output id="o-m"></output></label><input type="range" id="c-m" min="2" max="15" step="1" value="6"><small>قراية، رد، مراجعة الجدول، متابعة</small></div>
+        <div class="ctrl"><label for="c-u">نسبة المحادثات اللي Watcher بيخلّصها لوحده <output id="o-u"></output></label><input type="range" id="c-u" min="40" max="90" step="5" value="70"><small>الباقي بيتحوّل للفريق ومعاه ملخص جاهز</small></div>
+      </div>
+      <div class="outs" aria-live="polite">
+        <div class="l"><b id="r-lost" class="num"></b><span>حجز بيضيع في الشهر</span></div>
+        <div class="g"><b id="r-rec" class="num"></b><span>حجز بيرجع في الشهر</span></div>
+        <div><b id="r-ah" class="num"></b><span>محادثة بالليل في الشهر</span></div>
+        <div class="g"><b id="r-hrs" class="num"></b><span>ساعة متوفرة في الشهر</span></div>
+      </div>
+      <button class="reset" id="reset" type="button">رجّعي القيم الأصلية</button>
+    </div>
+
+    <details>
+      <summary>حسبناها إزاي (كل الافتراضات)</summary>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>الافتراض</th><th>متحفظ</th><th>الأقرب للواقع</th><th>عالي</th><th>على أي أساس</th></tr></thead>
+          <tbody>
+            <tr><td>محادثات جديدة في اليوم</td><td class="c">٢٥</td><td class="c">٤٠</td><td class="c">٦٠</td><td>٣ فروع، وحوالي ٤ إعلانات عروض في الأسبوع؛ من ٨ لـ ٢٠ محادثة لكل فرع</td></tr>
+            <tr><td>بعد قفل الاستقبال</td><td class="c">٢٥٪</td><td class="c">٣٧٪</td><td class="c">٤٥٪</td><td>الناس في مصر بتقلّب أكتر بالليل؛ افترضنا الاستقبال من ١١ الصبح لـ ١٠ بالليل</td></tr>
+            <tr><td>تأخير الرد وقت الشغل (+١٥ دقيقة)</td><td class="c">١٥٪</td><td class="c">٢٥٪</td><td class="c">٣٥٪</td><td>رقم واحد لتلات فروع، والموظف بيرد على التليفون والاستقبال في نفس الوقت</td></tr>
+            <tr><td>فرق التحويل (سريع قصاد متأخر)</td><td class="c">١٠ نقط</td><td class="c">١٣ نقطة</td><td class="c">١٦ نقطة</td><td>أبحاث سرعة الرد على العملاء (HBR 2011)، وقلّلناها عن قصد</td></tr>
+            <tr><td>نسبة اللي بيرجعوا مع الرد الفوري</td><td class="c">٧٠٪</td><td class="c">٨٠٪</td><td class="c">٨٥٪</td><td>مش كل اللي اتأخر عليها هتحجز حتى لو الرد جالها فوراً</td></tr>
+            <tr><td>دقايق شغل لكل محادثة</td><td class="c">٤</td><td class="c">٦</td><td class="c">٨</td><td>في المتوسط من ٤ لـ ٦ رسايل رايح جاي، ومعاهم مراجعة جدول الفرع</td></tr>
+            <tr><td>محادثات النظام بيخلّصها لوحده</td><td class="c">٦٠٪</td><td class="c">٧٠٪</td><td class="c">٨٠٪</td><td>الأسئلة اللي إجابتها ثابتة في الجزء ٤</td></tr>
+            <tr><td>نسبة الغياب وتأثير التذكير</td><td class="c">١٢٪ ← −٢٥٪</td><td class="c">١٥٪ ← −٣٠٪</td><td class="c">٢٠٪ ← −٣٥٪</td><td>مراجعة كوكرين ٢٠١٣ عن إن تذكيرات الموبايل بتزوّد نسبة الحضور</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:.84rem">المعادلات: الحجوزات الضايعة = محادثات الشهر × نسبة الردود المتأخرة × فرق التحويل، ونسبة الردود المتأخرة = نسبة الليل + (١ − نسبة الليل) × نسبة التأخير وقت الشغل. الساعات المتوفرة = المحادثات × الدقايق ÷ ٦٠ × نسبة اللي النظام بيخلّصه، وفوقهم ٣ دقايق لكل مكالمة تأكيد ميعاد التذكير الأوتوماتيك بيغني عنها.</p>
+    </details>
+  </section>
+</div>
+</div>
+
+<div class="wrap">
+  <section id="flow">
+    <div class="eyebrow"><span class="n">٦</span> قبل وبعد</div>
+    <h2>نفس الحجز، بطريقتين</h2>
+    <div class="flow">
+      <div class="fl before">
+        <h3><i style="background:var(--bad)"></i> النهارده</h3>
+        <ol>
+          <li><span>المريضة بتشوف إعلان العرض الساعة ١١ بالليل وتبعت «تفاصيل؟»</span></li>
+          <li><span>مفيش رد لحد تاني يوم الصبح</span></li>
+          <li><span>الموظف بيرد بالتفاصيل ويسألها ساكنة فين</span></li>
+          <li><span>بيكلّم الفرع يعرف مين الدكتورة الموجودة والمواعيد</span></li>
+          <li><span>يرجعلها بميعادين، تكون حجزت في حتة تانية أو بطّلت ترد</span></li>
+          <li><span>ولو حجزت، محدش بيفكّرها قبل الميعاد</span></li>
+        </ol>
+        <div class="tot">من ١٢ لـ ١٦ ساعة لحد الحجز، ده لو حصل</div>
+      </div>
+      <div class="fl after">
+        <h3><i style="background:var(--good)"></i> مع Watcher</h3>
+        <ol>
+          <li><span><strong>رد في ثواني، في أي وقت.</strong> تفاصيل العرض الشغال ومدته بنفس كلام الإعلان.</span></li>
+          <li><span><strong>يسألها ساكنة فين ويقترح أقرب فرع.</strong> ومعاه الدكتورة الموجودة وأقرب تلات مواعيد.</span></li>
+          <li><span><strong>يسأل أسئلة الأمان قبل ما يأكد.</strong> وأي إجابة محتاجة دكتورة بتتحوّل فوراً.</span></li>
+          <li><span><strong>يأكد الحجز ويبعت اللوكيشن،</strong> وبعدين يفكّرها قبل الميعاد بيوم وبساعتين.</span></li>
+          <li><span><strong>الفرع بيوصله إشعار واضح:</strong> الاسم، الخدمة، الفرع، الميعاد، وجت من أنهي إعلان.</span></li>
+        </ol>
+        <div class="tot">أقل من ٣ دقايق، حتى الساعة واحدة بالليل</div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="band">
+<div class="wrap">
+  <section id="demo" style="border:none">
+    <div class="eyebrow"><span class="n">٧</span> شكلها في الحقيقة</div>
+    <h2>الساعة واحدة وربع بالليل</h2>
+    <p>مثال لمحادثة Watcher بيمشيها من أولها لآخرها بعد ما الفروع التلاتة تقفل. الأسماء والمواعيد للتوضيح بس.</p>
+    <div class="demo">
+      <div class="phone" aria-label="مثال لمحادثة واتساب">
+        <div class="ph-top"><b>White Glow Clinics</b><span>متصل دلوقتي</span></div>
+        <div class="msg sys">جاية من إعلان عرض الفيلر والبوتوكس</div>
+        <div class="msg in">مساء الخير، العرض ده لسه موجود؟<time>1:14</time></div>
+        <div class="msg out">مساء النور 🌸 أيوه العرض شغال لحد الخميس الساعة ١٠ بالليل. فيه فيلر ٤ مل + بوتوكس للوش كله مع الدكتورة. حضرتك ساكنة فين عشان أقولك أقرب فرع؟<time>1:14</time></div>
+        <div class="msg in">في أكتوبر<time>1:15</time></div>
+        <div class="msg out">يبقى أقرب فرع ليكي الشيخ زايد. أقرب مواعيد فاضية:<br>• بكرة ٤:٠٠ م<br>• بكرة ٦:٣٠ م<br>• الأربع ٢:٠٠ م<br>قبل ما أأكد: حضرتك حامل أو مرضعة، أو بتاخدي أي أدوية سيولة؟<time>1:15</time></div>
+        <div class="msg in">لا خالص. بكرة ٦ ونص<time>1:16</time></div>
+        <div class="msg out">تمام ✅ حجزك اتأكد في فرع الشيخ زايد بكرة ٦:٣٠ م. هبعتلك اللوكيشن وهفكّرك قبل الميعاد بساعتين. محتاجة أي حاجة تانية؟<time>1:16</time></div>
+        <div class="msg sys">إشعار للفرع: حجز جديد · زايد · فيلر + بوتوكس · ٦:٣٠ م · من إعلان العرض</div>
+      </div>
+      <div class="notes">
+        <div class="note"><b>دقيقتين من أول رسالة لحجز متأكد</b><span>بدل ما تستنى للصبح، وفي نفس الساعة اللي بتاخد فيها القرار.</span></div>
+        <div class="note"><b>الفرع الصح من أول مرة</b><span>المنطقة بتحدد الفرع، وجدول كل فرع بيحدد المواعيد اللي بتظهر.</span></div>
+        <div class="note"><b>سؤال الأمان قبل التأكيد، مش بعده</b><span>لو قالت «مرضعة»، المحادثة بتقف هنا وتتحوّل لدكتورة ومعاها ملخص الحالة.</span></div>
+        <div class="note"><b>عامية مصرية، وبنفس كلام الإعلان</b><span>مفيش ردود أوتوماتيك ناشفة، ومفيش أي معلومة برّه قايمة الأسعار والعروض اللي حضرتك معتمداها.</span></div>
+        <div class="note"><b>كل محادثة بتاخد درجة</b><span>المحادثة دي بتتقيّم على حسب المعايير اللي في الجزء الجاي.</span></div>
+      </div>
+    </div>
+  </section>
+</div>
+</div>
+
+<div class="wrap">
+  <section id="rubric">
+    <div class="eyebrow"><span class="n">٨</span> الجودة بتتقاس</div>
+    <h2>معايير جودة واضحة لكل محادثة</h2>
+    <p>النهارده محدش بيقيس جودة الرد على واتساب: لا سرعة الرد، ولا صحة المعلومة، ولا هل المريضة اتسألت عن موانع الإجراء ولا لأ. مع Watcher كل محادثة بتاخد درجة من ١٠٠ على تمن معايير ثابتة، وكل أسبوع بيوصلك تقرير أداء لكل فرع.</p>
+    <div class="wbar" aria-hidden="true">
+      <span style="flex:20;background:var(--accent)"></span>
+      <span style="flex:15;background:var(--accent);opacity:.85"></span>
+      <span style="flex:15;background:var(--accent);opacity:.72"></span>
+      <span style="flex:15;background:var(--accent);opacity:.6"></span>
+      <span style="flex:10;background:var(--accent);opacity:.5"></span>
+      <span style="flex:10;background:var(--accent);opacity:.42"></span>
+      <span style="flex:10;background:var(--accent);opacity:.34"></span>
+      <span style="flex:5;background:var(--accent);opacity:.26"></span>
+    </div>
+    <div class="cap">وزن كل معيار من التمانية، والمجموع ١٠٠.</div>
+    <div class="tbl rub">
+      <table>
+        <thead><tr><th>المعيار</th><th>الوزن</th><th>بنقيس إيه</th><th>الهدف</th></tr></thead>
+        <tbody>
+          <tr><td><strong>صحة المعلومة</strong><span class="crit">حرج</span></td><td class="w">٢٠</td><td>كل سعر وعرض وميعاد وعنوان مطابق للقايمة اللي حضرتك معتمداها. أي معلومة متألفة بتسقّط المحادثة.</td><td>١٠٠٪ مطابقة</td></tr>
+          <tr><td><strong>السلامة الطبية</strong><span class="crit">حرج</span></td><td class="w">١٥</td><td>لا تشخيص ولا وعود بنتايج. أسئلة الموانع قبل الحجز، وأي حالة حساسة تتحوّل لدكتورة.</td><td>١٠٠٪ تحويل</td></tr>
+          <tr><td><strong>سرعة الرد</strong></td><td class="w">١٥</td><td>أول رد بياخد قد إيه، بالليل والنهار، وفي أيام العروض.</td><td>أقل من ٦٠ ثانية</td></tr>
+          <tr><td><strong>بيانات الحجز كاملة</strong></td><td class="w">١٥</td><td>الاسم، الرقم، الخدمة، الفرع، الميعاد، وجت من أنهي إعلان، وكلهم متأكدين مع المريضة.</td><td>١٠٠٪ من الحجوزات</td></tr>
+          <tr><td><strong>الفرع الصح</strong></td><td class="w">١٠</td><td>يقترح الفرع على حسب منطقتها والدكتورة الموجودة، مش أول فرع في القايمة.</td><td>أكتر من ٩٥٪</td></tr>
+          <tr><td><strong>التحويل للفريق</strong></td><td class="w">١٠</td><td>الشكاوى والحالات الطبية والطلبات الخاصة بتتحوّل ومعاها ملخص، والمريضة بتعرف هيترد عليها إمتى.</td><td>خلال ١٠ دقايق وقت الشغل</td></tr>
+          <tr><td><strong>الأسلوب واللغة</strong></td><td class="w">١٠</td><td>عامية مصرية دافية بصوت العيادة، أو إنجليزي أو فرانكو على حسب ما المريضة بتكتب.</td><td>أكتر من ٩٠٪ في المراجعة</td></tr>
+          <tr><td><strong>المتابعة</strong></td><td class="w">٥</td><td>تذكير قبل الميعاد بيوم وبساعتين، ورسالة متابعة لأي حد بطّل يرد قبل ما يحجز.</td><td>١٠٠٪ أوتوماتيك</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>القاعدة الأساسية:</strong> أي محادثة تقع في معيار حرج بتعتبر ساقطة مهما كانت درجتها، وبتتراجع يدوي خلال ٢٤ ساعة. الهدف إن متوسط كل فرع يعدّي ٩٠ من ١٠٠، ومعاه مراجعة بشرية كل أسبوع لعينة من المحادثات.</p>
+  </section>
+
+  <section id="multi">
+    <div class="eyebrow"><span class="n">٩</span> معمول للعيادات اللي ليها كذا فرع</div>
+    <h2>رقم واحد شغال كأنه تلات موظفين استقبال</h2>
+    <div class="caps">
+      <div class="cap-i"><h3>شغال ٢٤ ساعة، ٧ أيام</h3><p>حتى الجمعة والإجازات وليالي العروض، وهي بالظبط الأوقات اللي المريضة بتاخد فيها قرارها.</p></div>
+      <div class="cap-i"><h3>عارف كل فرع</h3><p>جدول كل دكتورة في كل فرع، والمواعيد الفاضية، والعنوان، وبيقترح الأقرب على حسب منطقة المريضة.</p></div>
+      <div class="cap-i"><h3>كل القنوات في مكان واحد</h3><p>واتساب وماسنجر، بنفس المعلومات ونفس الأسلوب، فمحدش ياخد إجابة غير التانية.</p></div>
+      <div class="cap-i"><h3>بيكبر مع الفريق</h3><p>دكتورة جديدة أو فرع رابع يعني تحديث جدول، مش تدريب موظف جديد على كل التفاصيل.</p></div>
+      <div class="cap-i"><h3>عارف إمتى يقف</h3><p>الحالات الطبية والشكاوى والطلبات الخاصة بتروح لإنسان، ومعاها ملخص عشان محدش يعيد الأسئلة.</p></div>
+      <div class="cap-i"><h3>تقارير لكل فرع</h3><p>عدد المحادثات والحجوزات وجت من أنهي إعلان، ودرجة الجودة، كل أسبوع لدكتورة سحر.</p></div>
+    </div>
+  </section>
+
+  <section id="pilot">
+    <div class="eyebrow"><span class="n">١٠</span> الخطوة الجاية</div>
+    <h2>نثبت الأرقام الأول، قبل أي التزام</h2>
+    <p>بنقترح تجربة قصيرة تبدأ بقياس الوضع الحالي، عشان دكتورة سحر تقارن بأرقامها هي، مش بأرقامنا.</p>
+    <div class="steps">
+      <div class="st"><div class="when">الأسبوع الأول · القياس</div><p>اختبار «مريضة سرية» على التلات فروع بموافقتك، ومراجعة عينة من محادثات آخر ٣٠ يوم عشان نعرف سرعة الرد ونسبة التحويل الحالية.</p></div>
+      <div class="st"><div class="when">الأسبوع التاني والتالت · التشغيل</div><p>نشغّل Watcher على رقم الواتساب وصفحة ماسنجر بقايمة أسعارك وجداول الفروع، والفريق شايف كل محادثة.</p></div>
+      <div class="st"><div class="when">آخر الأسبوع التالت · المقارنة</div><p>تقرير قبل وبعد: سرعة الرد، المحادثات اللي جت بالليل واتحولت لحجوزات، الساعات اللي اتوفرت، ودرجة الجودة لكل فرع.</p></div>
+    </div>
+  </section>
+</div>
+
+<div class="band">
+<div class="wrap">
+  <section class="cta" style="border:none">
+    <h2>نبدأ بمكالمة قصيرة؟</h2>
+    <p>عشرين دقيقة نراجع فيها أرقامك الحقيقية: عدد المحادثات ومواعيد الشغل وجداول الفروع. ولو الأرقام مش مقنعة، هنقولك بصراحة.</p>
+  </section>
+</div>
+</div>
+
+<div class="wrap">
+  <footer class="foot">
+    <p><span class="brand">AUTOMERA</span> · التحليل ده مجاني وليكي تحتفظي بيه، سواء اشتغلنا مع بعض أو لأ.</p>
+    <p>أي رقم عليه علامة <span class="est">تقدير</span> هو توقع مبني على بيانات عامة (عدد الفروع، الإعلانات المنشورة، القنوات المستخدمة) ومعايير العيادات اللي ليها كذا فرع، ومكتوب نطاقه وافتراضاته في الجزء ٥. الأرقام الحقيقية هتختلف، وهنحط مكانها أرقام فعلية في أسبوع القياس.</p>
+    <p>المصادر:</p>
+    <ol>
+      <li>مكتبة إعلانات ميتا، مصر، إعلانات White Glow Clinics، اتشافت يوم ١٦ و٢٠ أكتوبر ٢٠٢٦.</li>
+      <li>صفحة White Glow Clinics على فيسبوك، اتشافت يوم ١٦ أكتوبر ٢٠٢٦.</li>
+      <li>Oldroyd, McElheran &amp; Elkington, <a href="https://hbr.org/2011/03/the-short-life-of-online-sales-leads" target="_blank" rel="noopener">The Short Life of Online Sales Leads</a>, Harvard Business Review, 2011.</li>
+      <li>Gurol-Urganci et al., <a href="https://www.cochranelibrary.com/cdsr/doi/10.1002/14651858.CD007458.pub3/full" target="_blank" rel="noopener">Mobile phone messaging reminders for attendance at healthcare appointments</a>, Cochrane Database of Systematic Reviews, 2013.</li>
+    </ol>
+  </footer>
+</div>
+
+</div>
+
+<script>
+(function(){
+  var fmt=new Intl.NumberFormat('ar-EG',{maximumFractionDigits:0});
+  var pct=function(v){return fmt.format(v)+'٪'};
+
+  /* Hourly arrival pattern (share of a day's messages), staffed 11:00-22:00 assumed */
+  var w=[5,4,2.5,1.2,0.6,0.4,0.4,0.8,1.5,2.5,3.5,4.5,5,5,5,5,5.5,6,6.5,7.5,8.5,9.5,9.5,7.5];
+  var tot=w.reduce(function(a,b){return a+b},0);
+  var staffed=function(h){return h>=11&&h<22};
+  var box=document.getElementById('hours'), tip=document.getElementById('tip');
+  var W=720,H=220,pl=34,pr=8,pt=12,pb=30,iw=W-pl-pr,ih=H-pt-pb,bw=iw/24,max=10;
+  var s='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Sans Arabic, Tahoma, sans-serif" font-size="11">';
+  [0,5,10].forEach(function(t){var y=pt+ih-ih*t/max;s+='<line x1="'+pl+'" x2="'+(W-pr)+'" y1="'+y+'" y2="'+y+'" stroke="var(--line)" stroke-width="1"/><text x="'+(pl-6)+'" y="'+(y+4)+'" text-anchor="end" fill="var(--muted)">'+fmt.format(t)+'٪</text>'});
+  w.forEach(function(v,h){
+    var p=v/tot*100,bh=ih*p/max,x=pl+h*bw+1,y=pt+ih-bh;
+    var c=staffed(h)?'var(--bar)':'var(--bad)';
+    s+='<path d="M'+x+' '+(pt+ih)+'V'+(y+3)+'q0 -3 3 -3h'+(bw-8)+'q3 0 3 3V'+(pt+ih)+'z" fill="'+c+'"/>';
+    s+='<rect class="hit" data-h="'+h+'" data-p="'+p.toFixed(1)+'" x="'+(pl+h*bw)+'" y="'+pt+'" width="'+bw+'" height="'+ih+'" fill="transparent"/>';
+    if(h%3===0)s+='<text x="'+(pl+h*bw+bw/2)+'" y="'+(H-10)+'" text-anchor="middle" fill="var(--muted)">'+String(h).padStart(2,'0')+':00</text>';
+  });
+  s+='</svg>';
+  box.innerHTML=s;
+  var wrap=box.parentNode;
+  box.querySelectorAll('.hit').forEach(function(r){
+    r.addEventListener('mouseenter',function(){
+      var h=+r.dataset.h,rb=r.getBoundingClientRect(),wb=wrap.getBoundingClientRect();
+      tip.textContent='الساعة '+String(h).padStart(2,'0')+':00 · '+fmt.format(+r.dataset.p)+'٪ من رسايل اليوم'+(staffed(h)?'':' · بعد قفل الاستقبال');
+      tip.style.left=(rb.left-wb.left+rb.width/2)+'px';tip.style.top=(rb.top-wb.top+40)+'px';tip.hidden=false;
+    });
+    r.addEventListener('mouseleave',function(){tip.hidden=true});
+  });
+
+  /* Calculator: same formulas as the assumptions table */
+  var ids=['d','a','s','g','m','u'], def={d:40,a:37,s:25,g:13,m:6,u:70};
+  var el=function(i){return document.getElementById(i)};
+  function calc(){
+    var v={};ids.forEach(function(k){v[k]=+el('c-'+k).value});
+    el('o-d').textContent=fmt.format(v.d);el('o-a').textContent=pct(v.a);el('o-s').textContent=pct(v.s);
+    el('o-g').textContent=fmt.format(v.g);el('o-m').textContent=fmt.format(v.m);el('o-u').textContent=pct(v.u);
+    var M=v.d*30,A=v.a/100,L=A+(1-A)*v.s/100,lost=M*L*v.g/100,rec=lost*0.8;
+    var booked=M*0.18,hrs=M*v.m/60*v.u/100+booked*3/60*0.9;
+    el('r-lost').textContent=fmt.format(lost);el('r-rec').textContent=fmt.format(rec);
+    el('r-ah').textContent=fmt.format(M*A);el('r-hrs').textContent=fmt.format(hrs);
+  }
+  ids.forEach(function(k){el('c-'+k).addEventListener('input',calc)});
+  el('reset').addEventListener('click',function(){ids.forEach(function(k){el('c-'+k).value=def[k]});calc()});
+  calc();
+})();
+</script>
+</body>
+</html>
